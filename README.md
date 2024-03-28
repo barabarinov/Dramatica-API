@@ -26,3 +26,4 @@ git clone https://github.com/barabarinov/Dramatica-API.git
 ```shell
 docker-compose up --build
 ```
+![database diagram](pic/diagram.png)
