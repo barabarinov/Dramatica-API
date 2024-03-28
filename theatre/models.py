@@ -1,5 +1,10 @@
+import os.path
+import uuid
+
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils.text import slugify
 
 
 class Actor(models.Model):
@@ -28,9 +33,13 @@ class Genre(models.Model):
 
 
 class TheatreHall(models.Model):
-    name = models.CharField(max_length=128)
+    name = models.CharField(max_length=128, unique=True)
     rows = models.IntegerField()
     seats_in_row = models.IntegerField()
+
+    @property
+    def total_seating(self) -> int:
+        return self.rows * self.seats_in_row
 
     def __str__(self) -> str:
         return self.name
@@ -39,19 +48,22 @@ class TheatreHall(models.Model):
         ordering = ["name"]
 
 
+def play_image_file_path(instance: "Play", filename: str) -> str:
+    """Generate file path for uploading play images."""
+    _, extension = os.path.splitext(filename)
+    unique_filename = (
+        f"{slugify(instance.title)}-{instance.id}-{uuid.uuid4()}{extension}"
+    )
+
+    return os.path.join("uploads", "plays", unique_filename)
+
+
 class Play(models.Model):
     title = models.CharField(max_length=128)
     description = models.TextField()
-    genres = models.ManyToManyField(
-        Genre,
-        blank=True,
-        related_name="plays"
-    )
-    actors = models.ManyToManyField(
-        Actor,
-        blank=True,
-        related_name="plays"
-    )
+    image = models.ImageField(null=True, upload_to=play_image_file_path)
+    genres = models.ManyToManyField(Genre, blank=True, related_name="plays")
+    actors = models.ManyToManyField(Actor, blank=True, related_name="plays")
 
     def __str__(self):
         return self.title
@@ -82,7 +94,6 @@ class Reservation(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="reservations",
     )
 
     def __str__(self) -> str:
@@ -104,12 +115,50 @@ class Ticket(models.Model):
         Reservation,
         on_delete=models.SET_NULL,
         related_name="tickets",
+        null=True,
+        blank=True,
     )
 
-    def __str__(self) -> str:
-        return (
-            f"{str(self.reservation)} (row: {self.row}, seat: {self.seat})"
+    @staticmethod
+    def validate_ticket(
+        row: int, seat: int, theatre_hall: TheatreHall, error_to_raise
+    ) -> None:
+        for ticket_attr_value, ticket_attr_name, theatre_hall_attr_name in [
+            (row, "row", "rows"),
+            (seat, "seat", "seats_in_row"),
+        ]:
+            count_attrs = getattr(theatre_hall, theatre_hall_attr_name)
+            if not (1 <= ticket_attr_value <= count_attrs):
+                raise error_to_raise(
+                    {
+                        ticket_attr_name: f"{ticket_attr_name} "
+                        f"number must be in available range: "
+                        f"(1, {theatre_hall_attr_name}): "
+                        f"(1, {count_attrs})"
+                    }
+                )
+
+    def clean(self) -> None:
+        Ticket.validate_ticket(
+            self.row,
+            self.seat,
+            self.performance.theatre_hall,
+            ValidationError,
         )
+
+    def save(
+        self, force_insert=False, force_update=False, using=None, update_fields=None
+    ):
+        self.full_clean()
+        return super(Ticket, self).save(
+            force_insert,
+            force_update,
+            using,
+            update_fields,
+        )
+
+    def __str__(self) -> str:
+        return f"{str(self.performance)} (row: {self.row}, seat: {self.seat})"
 
     class Meta:
         unique_together = ("performance", "row", "seat")
