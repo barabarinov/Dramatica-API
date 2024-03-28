@@ -10,7 +10,6 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from .permissions import IsAdminOrIfAuthenticatedReadOnly
 from .models import Actor, Genre, TheatreHall, Play, Performance, Reservation
 from .serializers import (
     ActorSerializer,
