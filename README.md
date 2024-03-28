@@ -4,10 +4,13 @@ Welcome to the Dramatica-API! This robust API, built on Django for theatrical ma
 
 ## Features
 * Play Management
+* JWT authentication
+* Throttling
 * Schedule of Performance
 * Reservation of Tickets
-* Admin Panel and User Authentication
+* Permissions
 * Pagination and Filtering
+* Media files handling
 * Docker Support
 * Swagger API Documentation
 
@@ -19,7 +22,7 @@ git clone https://github.com/barabarinov/Dramatica-API.git
 ```
 2. Create an `.env` file and define the environment variables using `.env.example`
 
-3. Run docker-compose command to build and up containers:
+3. Run `docker-compose` command to build and up containers:
 ```shell
 docker-compose up --build
 ```
