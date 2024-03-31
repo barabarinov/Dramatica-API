@@ -14,14 +14,18 @@ Welcome to the Dramatica-API! This robust API, built on Django for theatrical ma
 * Docker Support
 * Swagger API Documentation
 
-## Getting Started
+## Installing using GitHub
+If Docker is not being utilized, PostgreSQL must be installed and a database created. Create an `.env` file and define the environment variables using `.env.example`.
 
-1. Clone the repo:
 ```shell
 git clone https://github.com/barabarinov/Dramatica-API.git
-```
-2. Create an `.env` file and define the environment variables using `.env.example`
-
+python -m venv venv
+pip install -r requirements.txt
+python manage.py makemigrations
+python manage.py migrate
+python manage.py runserver
+````
+## Using Docker
 3. Run `docker-compose` command to build and up containers:
 ```shell
 docker-compose up --build
