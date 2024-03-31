@@ -1,10 +1,8 @@
-import os.path
-import uuid
-
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.utils.text import slugify
+
+from .utils import play_image_file_path
 
 
 class Actor(models.Model):
@@ -46,16 +44,6 @@ class TheatreHall(models.Model):
 
     class Meta:
         ordering = ["name"]
-
-
-def play_image_file_path(instance: "Play", filename: str) -> str:
-    """Generate file path for uploading play images."""
-    _, extension = os.path.splitext(filename)
-    unique_filename = (
-        f"{slugify(instance.title)}-{uuid.uuid4()}{extension}"
-    )
-
-    return os.path.join("uploads", "plays", unique_filename)
 
 
 class Play(models.Model):
@@ -161,5 +149,10 @@ class Ticket(models.Model):
         return f"{str(self.performance)} (row: {self.row}, seat: {self.seat})"
 
     class Meta:
-        unique_together = ("performance", "row", "seat")
+        constraints = [
+            models.UniqueConstraint(
+                fields=['performance', 'row', 'seat'],
+                name='unique_ticket'
+            )
+        ]
         ordering = ["row", "seat"]
