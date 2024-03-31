@@ -4,12 +4,11 @@ from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import action
 from django.db.models import QuerySet, Count, F
 from rest_framework.pagination import PageNumberPagination
-from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
+from .api_schemas import performance_list_schema, play_list_schema
 from .models import Actor, Genre, TheatreHall, Play, Performance, Reservation
 from .serializers import (
     ActorSerializer,
@@ -109,31 +108,7 @@ class PlayViewSet(
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @extend_schema(
-        parameters=[
-            OpenApiParameter(
-                "genres",
-                type={
-                    "type": "list",
-                    "items": {"type": "number"},
-                },
-                description="Filter by Genres id (ex. ?genres=1,3)",
-            ),
-            OpenApiParameter(
-                "actors",
-                type={
-                    "type": "list",
-                    "items": {"type": "number"},
-                },
-                description="Filter by Actors id (ex. ?actors=1,3)",
-            ),
-            OpenApiParameter(
-                "title",
-                type=OpenApiTypes.STR,
-                description="Filter by Play title (ex. ?title=Test)",
-            ),
-        ]
-    )
+    @play_list_schema
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
@@ -175,22 +150,7 @@ class PerformanceViewSet(viewsets.ModelViewSet):
 
         return queryset
 
-    @extend_schema(
-        parameters=[
-            OpenApiParameter(
-                "play",
-                type=OpenApiTypes.INT,
-                description="Filter by Play id (ex. ?play=3)",
-            ),
-            OpenApiParameter(
-                "date",
-                type=OpenApiTypes.DATE,
-                description=(
-                    "Filter by datetime of Performance " "(ex. ?date=2023-05-05)"
-                ),
-            ),
-        ]
-    )
+    @performance_list_schema
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
