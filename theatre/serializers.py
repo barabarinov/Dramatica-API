@@ -152,7 +152,7 @@ class TicketSeatsSerializer(TicketSerializer):
 
 
 class PerformanceDetailSerializer(PerformanceSerializer):
-    play = PlayListSerializer(many=False, read_only=True)
+    play = PlayListSerializer(read_only=True)
     theatre_hall = TheatreHallSerializer(read_only=True)
     taken_places = TicketSeatsSerializer(source="tickets", many=True, read_only=True)
 
