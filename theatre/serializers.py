@@ -14,6 +14,7 @@ from theatre.models import (
 
 
 class TheatreHallSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = TheatreHall
         fields = (
@@ -26,12 +27,14 @@ class TheatreHallSerializer(serializers.ModelSerializer):
 
 
 class GenreSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Genre
         fields = ("id", "name")
 
 
 class ActorSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Actor
         fields = (
@@ -43,6 +46,7 @@ class ActorSerializer(serializers.ModelSerializer):
 
 
 class PlaySerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Play
         fields = (
@@ -78,12 +82,14 @@ class PlayDetailSerializer(PlaySerializer):
 
 
 class PlayImageSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Play
         fields = ("id", "image")
 
 
 class PerformanceSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Performance
         fields = (
@@ -135,10 +141,11 @@ class TicketSerializer(serializers.ModelSerializer):
 
 
 class TicketListSerializer(TicketSerializer):
-    performance = PerformanceListSerializer(many=False, read_only=True)
+    performance = PerformanceListSerializer(read_only=True)
 
 
 class TicketSeatsSerializer(TicketSerializer):
+
     class Meta:
         model = Ticket
         fields = ("row", "seat")
@@ -146,7 +153,7 @@ class TicketSeatsSerializer(TicketSerializer):
 
 class PerformanceDetailSerializer(PerformanceSerializer):
     play = PlayListSerializer(many=False, read_only=True)
-    theatre_hall = TheatreHallSerializer(many=False, read_only=True)
+    theatre_hall = TheatreHallSerializer(read_only=True)
     taken_places = TicketSeatsSerializer(source="tickets", many=True, read_only=True)
 
     class Meta:
