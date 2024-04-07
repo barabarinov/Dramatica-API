@@ -3,12 +3,12 @@ from datetime import datetime
 from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import action
 from django.db.models import QuerySet, Count, F
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from .api_schemas import performance_list_schema, play_list_schema
+from .pagination import ReservationPagination
 from .models import Actor, Genre, TheatreHall, Play, Performance, Reservation
 from .serializers import (
     ActorSerializer,
@@ -115,7 +115,7 @@ class PlayViewSet(
 
 class PerformanceViewSet(viewsets.ModelViewSet):
     queryset = (
-        Performance.objects.all()
+        Performance.objects
         .select_related("play", "theatre_hall")
         .annotate(
             tickets_available=(
@@ -153,11 +153,6 @@ class PerformanceViewSet(viewsets.ModelViewSet):
     @performance_list_schema
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
-
-
-class ReservationPagination(PageNumberPagination):
-    page_size = 10
-    max_page_size = 100
 
 
 class ReservationViewSet(
