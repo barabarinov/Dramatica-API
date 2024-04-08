@@ -1,15 +1,15 @@
 from datetime import datetime
 
+from django.db.models import QuerySet, Count, F
 from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import action
-from django.db.models import QuerySet, Count, F
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from .api_schemas import performance_list_schema, play_list_schema
-from .pagination import ReservationPagination
 from .models import Actor, Genre, TheatreHall, Play, Performance, Reservation
+from .pagination import ReservationPagination
 from .serializers import (
     ActorSerializer,
     GenreSerializer,
@@ -97,7 +97,6 @@ class PlayViewSet(
         methods=["POST"],
         detail=True,
         url_path="upload-image",
-        permission_classes=[IsAdminUser],
     )
     def upload_image(self, request, pk=None) -> Response:
         """Endpoint for uploading image to specific play."""
@@ -119,8 +118,8 @@ class PerformanceViewSet(viewsets.ModelViewSet):
         .select_related("play", "theatre_hall")
         .annotate(
             tickets_available=(
-                F("theatre_hall__rows") * F("theatre_hall__seats_in_row")
-                - Count("tickets")
+                    F("theatre_hall__rows") * F("theatre_hall__seats_in_row")
+                    - Count("tickets")
             )
         )
     )
