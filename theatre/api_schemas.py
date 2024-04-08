@@ -1,7 +1,6 @@
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 
-
 play_list_schema = extend_schema(
     parameters=[
         OpenApiParameter(
