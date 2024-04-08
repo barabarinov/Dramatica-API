@@ -8,7 +8,6 @@ from theatre.models import Genre, Play
 from theatre.serializers import PlayListSerializer, PlayDetailSerializer
 from theatre.tests.test_actor_api import sample_actor
 
-
 LIST_URL = reverse("theatre:play-list")
 
 
